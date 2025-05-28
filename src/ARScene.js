@@ -15,7 +15,6 @@ const ARScene = () => {
     let hitTestSourceRequested = false;
     let selectListenerAttached = false;
 
-    // Setup scene, camera, renderer
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera();
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -23,17 +22,21 @@ const ARScene = () => {
     renderer.xr.enabled = true;
     containerRef.current.appendChild(renderer.domElement);
 
-    // Add AR button
+    // AR Button
     document.body.appendChild(ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] }));
 
     // Lighting
     const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
     scene.add(light);
 
-    // Reticle for surface detection
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(1, 3, 2);
+    scene.add(directionalLight);
+
+    // Reticle
     reticle = new THREE.Mesh(
       new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
-      new THREE.MeshBasicMaterial({ color: 0x0f0 })
+      new THREE.MeshBasicMaterial({ color: 0x00ff00 })
     );
     reticle.matrixAutoUpdate = false;
     reticle.visible = false;
@@ -43,7 +46,7 @@ const ARScene = () => {
     controller = renderer.xr.getController(0);
     scene.add(controller);
 
-    // Load model
+    // Load Model
     const loader = new GLTFLoader();
     loader.load(
       process.env.PUBLIC_URL + '/models/scene.gltf',
@@ -52,14 +55,15 @@ const ARScene = () => {
         model.scale.set(0.3, 0.3, 0.3);
         model.visible = false;
         scene.add(model);
+        scene.add(new THREE.BoxHelper(model, 0xffff00)); // debugging box
         modelLoaded = true;
         console.log('%c✅ Model loaded successfully', 'color: limegreen; font-weight: bold;');
       },
       (xhr) => {
         console.log(`📦 Loading model: ${(xhr.loaded / xhr.total * 100).toFixed(2)}%`);
       },
-      (err) => {
-        console.error('❌ Model load error:', err);
+      (error) => {
+        console.error('❌ Model load error:', error);
       }
     );
 
@@ -69,28 +73,7 @@ const ARScene = () => {
         const referenceSpace = renderer.xr.getReferenceSpace();
         const session = renderer.xr.getSession();
 
-        // Attach tap listener once
-        if (!selectListenerAttached && session) {
-          controller.addEventListener('select', () => {
-            if (reticle.visible && modelLoaded && model) {
-              const mat = new THREE.Matrix4().fromArray(reticle.matrix.elements);
-              const pos = new THREE.Vector3().setFromMatrixPosition(mat);
-              model.position.copy(pos);
-              model.visible = true;
-              console.log('📍 Model placed at', pos);
-            }
-          });
-
-          session.addEventListener('end', () => {
-            selectListenerAttached = false;
-            hitTestSourceRequested = false;
-            hitTestSource = null;
-          });
-
-          selectListenerAttached = true;
-        }
-
-        // Request hit test source if needed
+        // Hit test source setup
         if (!hitTestSourceRequested) {
           session.requestReferenceSpace('viewer').then((refSpace) => {
             session.requestHitTestSource({ space: refSpace }).then((source) => {
@@ -99,10 +82,34 @@ const ARScene = () => {
             });
           });
 
+          session.addEventListener('end', () => {
+            selectListenerAttached = false;
+            hitTestSourceRequested = false;
+            hitTestSource = null;
+          });
+
           hitTestSourceRequested = true;
         }
 
-        // Update reticle if hit test results are valid
+        // Tap handler setup
+        if (!selectListenerAttached && session) {
+          controller.addEventListener('select', () => {
+            if (reticle.visible && modelLoaded && model) {
+              const mat = new THREE.Matrix4().fromArray(reticle.matrix.elements);
+              const pos = new THREE.Vector3().setFromMatrixPosition(mat);
+
+              model.position.copy(pos);
+              model.position.y += 0.05; // Raise slightly above floor
+              model.visible = true;
+
+              console.log('📍 Model placed at', model.position);
+            }
+          });
+
+          selectListenerAttached = true;
+        }
+
+        // Reticle update
         if (hitTestSource) {
           const hitTestResults = frame.getHitTestResults(hitTestSource);
           if (hitTestResults.length > 0) {
@@ -116,7 +123,13 @@ const ARScene = () => {
         }
       }
 
-      renderer.render(scene, camera);
+      try {
+        if (renderer && renderer.xr && renderer.getContext()) {
+          renderer.render(scene, camera);
+        }
+      } catch (e) {
+        console.warn('⚠️ Render skipped due to lost context', e);
+      }
     });
 
     return () => {
