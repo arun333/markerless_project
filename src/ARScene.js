@@ -46,7 +46,8 @@ const ARScene = () => {
       if (reticle.visible && modelLoaded) {
         const model = modelLoaded.clone();
         model.position.setFromMatrixPosition(reticle.matrix);
-        pos.y += 0.05;
+        model.position.y += 0.05;
+
 
         scene.add(model);
         console.log('📍 Model placed at', model.position);
