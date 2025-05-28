@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/markerless_project_1/static/css/main.e6c13ad2.css",
+    "main.js": "/markerless_project_1/static/js/main.59564a14.js",
+    "static/js/453.d0ae035d.chunk.js": "/markerless_project_1/static/js/453.d0ae035d.chunk.js",
+    "index.html": "/markerless_project_1/index.html",
+    "main.e6c13ad2.css.map": "/markerless_project_1/static/css/main.e6c13ad2.css.map",
+    "main.59564a14.js.map": "/markerless_project_1/static/js/main.59564a14.js.map",
+    "453.d0ae035d.chunk.js.map": "/markerless_project_1/static/js/453.d0ae035d.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.59564a14.js"
+  ]
+}
