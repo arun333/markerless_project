@@ -47,7 +47,7 @@ const ARScene = () => {
       process.env.PUBLIC_URL + '/models/fish-shaped_besamin_box.glb',
       (gltf) => {
         model = gltf.scene;
-        model.scale.set(0.3, 0.3, 0.3);
+        model.scale.set(1, 1, 1);
         model.visible = false;
 
         // Ensure all mesh materials are visible
