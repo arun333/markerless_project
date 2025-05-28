@@ -51,7 +51,7 @@ const ARScene = () => {
         if (!selectListenerAttached && session) {
           controller.addEventListener('select', () => {
             if (reticle.visible) {
-              loader.load('/models/fish.glb', (gltf) => {
+                loader.load('public/models/fish.glb', (gltf) => {
                 const model = gltf.scene;
                 model.position.setFromMatrixPosition(reticle.matrix);
                 model.scale.set(0.5, 0.5, 0.5);
