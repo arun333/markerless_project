@@ -47,7 +47,7 @@ const ARScene = () => {
       process.env.PUBLIC_URL + '/models/fish-shaped_besamin_box.glb',
       (gltf) => {
         model = gltf.scene;
-        model.scale.set(1, 1, 1);
+        model.scale.set(2, 2, 2);
         model.visible = false;
 
         // Ensure all mesh materials are visible
@@ -90,7 +90,7 @@ const ARScene = () => {
               const mat = new THREE.Matrix4().fromArray(reticle.matrix.elements);
               const pos = new THREE.Vector3().setFromMatrixPosition(mat);
               model.position.copy(pos);
-              model.position.y += 0.05; // raise slightly
+              model.position.y += 0.01; // raise slightly
               model.visible = true;
               console.log('📍 Model placed at', pos);
             }
