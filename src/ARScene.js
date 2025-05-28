@@ -60,7 +60,7 @@ const ARScene = () => {
       process.env.PUBLIC_URL + '/models/fish.glb',
       (gltf) => {
         modelLoaded = gltf.scene;
-        modelLoaded.scale.set(0.3, 0.3, 0.3); // Scale model as needed
+        modelLoaded.scale.set(2, 2, 2); // Scale model as needed
         console.log('✅ Model loaded successfully');
       },
       (xhr) => {
