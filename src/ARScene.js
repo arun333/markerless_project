@@ -1,8 +1,8 @@
-// src/ARScene.js
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
+import gsap from 'gsap';
 
 const ARScene = () => {
   const containerRef = useRef();
@@ -12,9 +12,8 @@ const ARScene = () => {
     let reticle;
     let hitTestSource = null;
     let hitTestSourceRequested = false;
-    let modelLoaded = null;
+    let selectListenerAttached = false;
 
-    // Scene setup
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera();
 
@@ -27,7 +26,6 @@ const ARScene = () => {
       ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] })
     );
 
-    // Light
     const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
     scene.add(light);
 
@@ -40,55 +38,74 @@ const ARScene = () => {
     reticle.visible = false;
     scene.add(reticle);
 
-    // Controller setup
     controller = renderer.xr.getController(0);
-    controller.addEventListener('select', () => {
-      if (reticle.visible && modelLoaded) {
-        const model = modelLoaded.clone();
-        model.position.setFromMatrixPosition(reticle.matrix);
-        model.position.y += 0.05;
-
-
-        scene.add(model);
-        console.log('📍 Model placed at', model.position);
-      }
-    });
     scene.add(controller);
 
-    // Load model
     const loader = new GLTFLoader();
-    loader.load(
-      process.env.PUBLIC_URL + '/models/fish.glb',
-      (gltf) => {
-        modelLoaded = gltf.scene;
-        modelLoaded.scale.set(2, 2, 2); // Scale model as needed
-        console.log('✅ Model loaded successfully');
-      },
-      (xhr) => {
-        console.log(`📦 Loading model: ${(xhr.loaded / xhr.total) * 100}%`);
-      },
-      (error) => {
-        console.error('⛔ Error loading model:', error);
-      }
-    );
 
-    // Animation loop
     renderer.setAnimationLoop((timestamp, frame) => {
       if (frame) {
         const referenceSpace = renderer.xr.getReferenceSpace();
         const session = renderer.xr.getSession();
 
+        if (!selectListenerAttached && session) {
+          controller.addEventListener('select', () => {
+            if (reticle.visible) {
+              loader.load('/models/fish.glb', (gltf) => {
+                const model = gltf.scene;
+                model.position.setFromMatrixPosition(reticle.matrix);
+                model.scale.set(0.5, 0.5, 0.5);
+                scene.add(model);
+
+                console.log("✅ Model placed at", model.position);
+                reticle.visible = false;
+
+                // Animate model jump toward camera
+                const cameraDir = new THREE.Vector3();
+                camera.getWorldDirection(cameraDir);
+                cameraDir.multiplyScalar(0.5); // how far forward to jump
+
+                const jumpTarget = {
+                  x: model.position.x + cameraDir.x,
+                  y: model.position.y + 0.3, // jump height
+                  z: model.position.z + cameraDir.z,
+                };
+
+                gsap.to(model.position, {
+                  ...jumpTarget,
+                  duration: 1.5,
+                  ease: 'power2.out',
+                  yoyo: true,
+                  repeat: 1,
+                  onComplete: () => {
+                    console.log('🎯 Jump animation complete');
+                  },
+                });
+
+                gsap.to(model.rotation, {
+                  y: model.rotation.y + Math.PI * 2,
+                  duration: 1.5,
+                  ease: 'power2.inOut',
+                });
+              });
+            }
+          });
+
+          selectListenerAttached = true;
+        }
+
         if (!hitTestSourceRequested) {
           session.requestReferenceSpace('viewer').then((refSpace) => {
             session.requestHitTestSource({ space: refSpace }).then((source) => {
               hitTestSource = source;
-              console.log('✅ Hit test source ready');
+              console.log("✅ Hit test source ready");
             });
           });
 
           session.addEventListener('end', () => {
             hitTestSourceRequested = false;
             hitTestSource = null;
+            selectListenerAttached = false;
           });
 
           hitTestSourceRequested = true;
@@ -96,9 +113,9 @@ const ARScene = () => {
 
         if (hitTestSource) {
           const hitTestResults = frame.getHitTestResults(hitTestSource);
-          if (hitTestResults.length > 0) {
+          if (hitTestResults.length) {
             const hit = hitTestResults[0];
-            const pose = hit.getPose(referenceSpace);
+            const pose = hit.getPose(renderer.xr.getReferenceSpace());
             reticle.visible = true;
             reticle.matrix.fromArray(pose.transform.matrix);
           } else {
@@ -106,10 +123,10 @@ const ARScene = () => {
           }
         }
       }
+
       renderer.render(scene, camera);
     });
 
-    // Cleanup
     return () => {
       if (containerRef.current && renderer.domElement) {
         containerRef.current.removeChild(renderer.domElement);
@@ -118,7 +135,7 @@ const ARScene = () => {
     };
   }, []);
 
-  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />;
+  return <div ref={containerRef} />;
 };
 
 export default ARScene;
