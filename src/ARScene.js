@@ -13,6 +13,8 @@ const ARScene = () => {
     let hitTestSource = null;
     let hitTestSourceRequested = false;
     let selectListenerAttached = false;
+    let dolphinModel = null; // globally track your model
+
 
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera();
@@ -56,9 +58,11 @@ const ARScene = () => {
                 model.position.setFromMatrixPosition(reticle.matrix);
                 model.scale.set(0.5, 0.5, 0.5);
                 scene.add(model);
+                dolphinModel = model;
 
                 console.log("✅ Model placed at", model.position);
                 reticle.visible = false;
+                /*
 
                 // Animate model jump toward camera
                 const cameraDir = new THREE.Vector3();
@@ -87,6 +91,7 @@ const ARScene = () => {
                   duration: 1.5,
                   ease: 'power2.inOut',
                 });
+                */
               });
             }
           });
@@ -122,7 +127,11 @@ const ARScene = () => {
             reticle.visible = false;
           }
         }
+        if (dolphinModel) {
+            dolphinModel.rotation.y = camera.rotation.y * 2;
+        }
       }
+    
 
       renderer.render(scene, camera);
     });
