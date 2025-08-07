@@ -58,7 +58,7 @@ const ARScene = () => {
                 model.position.setFromMatrixPosition(reticle.matrix);
                 model.scale.set(0.5, 0.5, 0.5);
                 scene.add(model);
-                //dolphinModel = model;
+                dolphinModel = model;
 
                 console.log("Model placed at", model.position);
                 reticle.visible = false;
@@ -137,13 +137,13 @@ const ARScene = () => {
             camera.getWorldPosition(cameraPosition);
 
             // Make dolphin orbit around camera
-            model.position.set(
+            dolphinModel.position.set(
               cameraPosition.x + radius * Math.cos(time),
               cameraPosition.y,
               cameraPosition.z + radius * Math.sin(time)
             );
 
-        model.lookAt(cameraPosition); // Dolphin faces you
+        dolphinModel.lookAt(cameraPosition); // Dolphin faces you
     }
   }
 
