@@ -138,8 +138,8 @@ const ARScene = () => {
               const distance = 1.0;
               const targetPosition = cameraPosition.clone().add(cameraDirection.multiplyScalar(distance));
 
-              model.position.lerp(targetPosition, 0.1); // Smoothly follow
-              model.lookAt(cameraPosition); // Make dolphin face you
+              dolphinModel.position.lerp(targetPosition, 0.1); // Smoothly follow
+              dolphinModel.lookAt(cameraPosition); // Make dolphin face you
             
 
     }
