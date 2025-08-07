@@ -127,22 +127,21 @@ const ARScene = () => {
           }
         }
         if (dolphinModel) {
-            const radius = 0.5; // How far the dolphin orbits from you
-            const time = Date.now() * 0.01;
+             const camera = renderer.xr.getCamera();
+              const cameraPosition = new THREE.Vector3();
+              camera.getWorldPosition(cameraPosition);
 
-            const camera = renderer.xr.getCamera(); // AR camera
+              const cameraDirection = new THREE.Vector3();
+              camera.getWorldDirection(cameraDirection);
 
-            const cameraPosition = new THREE.Vector3();
-            camera.getWorldPosition(cameraPosition);
+              // Set dolphin in front of the camera at a fixed distance (e.g. 1 meter)
+              const distance = 1.0;
+              const targetPosition = cameraPosition.clone().add(cameraDirection.multiplyScalar(distance));
 
-            // Make dolphin orbit around camera
-            dolphinModel.position.set(
-              cameraPosition.x + radius * Math.cos(time),
-              cameraPosition.y,
-              cameraPosition.z + radius * Math.sin(time)
-            );
+              model.position.lerp(targetPosition, 0.1); // Smoothly follow
+              model.lookAt(cameraPosition); // Make dolphin face you
+            
 
-        dolphinModel.lookAt(cameraPosition); // Dolphin faces you
     }
   }
 
