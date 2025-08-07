@@ -54,13 +54,12 @@ const ARScene = () => {
           controller.addEventListener('select', () => {
             if (reticle.visible) {
                 loader.load('models/fish.glb', (gltf) => {
-                model = gltf.scene;
-                model.position.setFromMatrixPosition(reticle.matrix);
-                model.scale.set(0.5, 0.5, 0.5);
-                scene.add(model);
-                dolphinModel = model;
+                dolphinModel = gltf.scene;
+                dolphinModel.position.setFromMatrixPosition(reticle.matrix);
+                dolphinModel.scale.set(0.5, 0.5, 0.5);
+                scene.add(dolphinModel);
 
-                console.log("Model placed at", model.position);
+                console.log("Model placed at", dolphinModel.position);
                 reticle.visible = false;
                 /*
 
