@@ -54,13 +54,13 @@ const ARScene = () => {
           controller.addEventListener('select', () => {
             if (reticle.visible) {
                 loader.load('models/fish.glb', (gltf) => {
-                const model = gltf.scene;
+                model = gltf.scene;
                 model.position.setFromMatrixPosition(reticle.matrix);
                 model.scale.set(0.5, 0.5, 0.5);
                 scene.add(model);
-                dolphinModel = model;
+                //dolphinModel = model;
 
-                console.log("✅ Model placed at", model.position);
+                console.log("Model placed at", model.position);
                 reticle.visible = false;
                 /*
 
@@ -82,7 +82,7 @@ const ARScene = () => {
                   yoyo: true,
                   repeat: 1,
                   onComplete: () => {
-                    console.log('🎯 Jump animation complete');
+                    console.log('Jump animation complete');
                   },
                 });
 
@@ -103,7 +103,7 @@ const ARScene = () => {
           session.requestReferenceSpace('viewer').then((refSpace) => {
             session.requestHitTestSource({ space: refSpace }).then((source) => {
               hitTestSource = source;
-              console.log("✅ Hit test source ready");
+              console.log("Hit test source ready");
             });
           });
 
@@ -128,10 +128,24 @@ const ARScene = () => {
           }
         }
         if (dolphinModel) {
-            dolphinModel.rotation.y = camera.rotation.y * 2;
-        }
-      }
-    
+            const radius = 0.5; // How far the dolphin orbits from you
+            const time = Date.now() * 0.01;
+
+            const camera = renderer.xr.getCamera(); // AR camera
+
+            const cameraPosition = new THREE.Vector3();
+            camera.getWorldPosition(cameraPosition);
+
+            // Make dolphin orbit around camera
+            model.position.set(
+              cameraPosition.x + radius * Math.cos(time),
+              cameraPosition.y,
+              cameraPosition.z + radius * Math.sin(time)
+            );
+
+        model.lookAt(cameraPosition); // Dolphin faces you
+    }
+  }
 
       renderer.render(scene, camera);
     });
