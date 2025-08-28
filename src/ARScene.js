@@ -7,7 +7,9 @@ import gsap from 'gsap';
 const ARScene = () => {
   const containerRef = useRef();
   const [selectedModel, setSelectedModel] = useState('shark');
-  const [modelPlaced, setModelPlaced] = useState(false);
+  //const [modelPlaced, setModelPlaced] = useState(false);
+  const modelPlacedRef = useRef(false);
+  const [, forceUpdate] = useState(0);
 
 
   useEffect(() => {
@@ -59,7 +61,7 @@ const ARScene = () => {
 
      //Touch Event Listeners
     const onTouchStart = (e) => {
-      if (modelPlaced && e.touches.length === 1) {
+      if (modelPlacedRef.current && e.touches.length === 1) {
         isTouching = true;
         previousTouchX = e.touches[0].clientX;
         previousTouchY = e.touches[0].clientY;
@@ -107,7 +109,9 @@ const ARScene = () => {
                 activeModel.position.setFromMatrixPosition(reticle.matrix);
                 activeModel.scale.set(0.15, 0.15, 0.15);
                 scene.add(activeModel);
-                setModelPlaced(true);
+                modelPlacedRef.current = true;
+                forceUpdate((x) => x + 1);
+
                 reticle.visible = false;
 
                mixer = new THREE.AnimationMixer(activeModel);
