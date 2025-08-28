@@ -56,7 +56,7 @@ const ARScene = () => {
                 loader.load('models/shark.glb', (gltf) => {
                 dolphinModel = gltf.scene;
                 dolphinModel.position.setFromMatrixPosition(reticle.matrix);
-                dolphinModel.scale.set(0.08, 0.08, 0.08);
+                dolphinModel.scale.set(0.15, 0.15, 0.15);
                 scene.add(dolphinModel);
 
                 console.log("Model placed at", dolphinModel.position);
