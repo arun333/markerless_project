@@ -17,7 +17,6 @@ const ARScene = () => {
     let hitTestSourceRequested = false;
     let selectListenerAttached = false;
     let activeModel  = null; // globally track your model
-    let modelPlaced = false;
     let mixer;
     const clock = new THREE.Clock();
 
