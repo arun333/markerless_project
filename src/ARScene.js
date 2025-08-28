@@ -98,6 +98,8 @@ const ARScene = () => {
                 */
               });
             }
+              reticle.visible = false;
+
            
           });
 
