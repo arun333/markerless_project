@@ -160,7 +160,7 @@ const ARScene = () => {
               const targetPosition = cameraPosition.clone().add(cameraDirection.multiplyScalar(distance));
 
               dolphinModel.position.lerp(targetPosition, 0.1); // Smoothly follow
-              dolphinModel.lookAt(cameraPosition); 
+             // dolphinModel.lookAt(cameraPosition); 
 
     }
      const delta = clock.getDelta();
@@ -172,7 +172,7 @@ const ARScene = () => {
 
     });
 
-    // ➕ Touch Event Listeners
+    //Touch Event Listeners
     const onTouchStart = (e) => {
       if (modelPlaced && e.touches.length === 1) {
         isTouching = true;
