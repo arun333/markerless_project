@@ -53,7 +53,7 @@ const ARScene = () => {
         if (!selectListenerAttached && session) {
           controller.addEventListener('select', () => {
             if (reticle.visible) {
-                loader.load('models/great_white_shark_attack_bite_animation_loop.glb', (gltf) => {
+                loader.load('models/white_shark.glb', (gltf) => {
                 dolphinModel = gltf.scene;
                 dolphinModel.position.setFromMatrixPosition(reticle.matrix);
                 dolphinModel.scale.set(0.5, 0.5, 0.5);
