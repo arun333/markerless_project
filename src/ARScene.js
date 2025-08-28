@@ -177,16 +177,29 @@ const ARScene = () => {
       if (modelPlaced && e.touches.length === 1) {
         isTouching = true;
         previousTouchX = e.touches[0].clientX;
+        previousTouchY = e.touches[0].clientY;
+
       }
     };
 
     const onTouchMove = (e) => {
       if (!isTouching || e.touches.length !== 1 || !dolphinModel) return;
-      const deltaX = e.touches[0].clientX - previousTouchX;
-      previousTouchX = e.touches[0].clientX;
+
+      const currentTouchX = e.touches[0].clientX;
+      const currentTouchY = e.touches[0].clientY;
+
+      const deltaX = currentTouchX - previousTouchX;
+      const deltaY = currentTouchY - previousTouchY;
+
+      previousTouchX = currentTouchX;
+      previousTouchY = currentTouchY;
 
       const rotationSpeed = 0.005;
-      dolphinModel.rotation.y += deltaX * rotationSpeed;
+      dolphinModel.rotation.y += deltaX * rotationSpeed; // Horizontal (left/right)
+      dolphinModel.rotation.x += deltaY * rotationSpeed; // Vertical (up/down)
+
+      // Optional: Clamp vertical rotation if needed (e.g., to avoid flipping)
+      dolphinModel.rotation.x = THREE.MathUtils.clamp(dolphinModel.rotation.x, -Math.PI / 2, Math.PI / 2);
     };
     
 
