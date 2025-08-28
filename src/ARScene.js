@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
@@ -16,7 +16,7 @@ const ARScene = () => {
     let hitTestSource = null;
     let hitTestSourceRequested = false;
     let selectListenerAttached = false;
-    let dolphinModel = null; // globally track your model
+    let activeModel  = null; // globally track your model
     let modelPlaced = false;
     let mixer;
     const clock = new THREE.Clock();
