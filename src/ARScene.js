@@ -14,6 +14,8 @@ const ARScene = () => {
     let hitTestSourceRequested = false;
     let selectListenerAttached = false;
     let dolphinModel = null; // globally track your model
+    let modelPlaced = false;
+
 
 
     scene = new THREE.Scene();
@@ -52,15 +54,17 @@ const ARScene = () => {
 
         if (!selectListenerAttached && session) {
           controller.addEventListener('select', () => {
-            if (reticle.visible) {
+            if (reticle.visible && !modelPlaced) {
                 loader.load('models/shark.glb', (gltf) => {
                 dolphinModel = gltf.scene;
                 dolphinModel.position.setFromMatrixPosition(reticle.matrix);
                 dolphinModel.scale.set(0.15, 0.15, 0.15);
                 scene.add(dolphinModel);
+                modelPlaced=true;
 
                 console.log("Model placed at", dolphinModel.position);
-                reticle.visible = false;
+
+                
                 /*
 
                 // Animate model jump toward camera
@@ -93,6 +97,9 @@ const ARScene = () => {
                 */
               });
             }
+            if (modelPlaced) {
+                    reticle.visible = false; // just in case
+                  }
           });
 
           selectListenerAttached = true;
