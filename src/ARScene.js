@@ -61,6 +61,7 @@ const ARScene = () => {
                 dolphinModel.scale.set(0.15, 0.15, 0.15);
                 scene.add(dolphinModel);
                 modelPlaced=true;
+                reticle.visible = false;
 
                 console.log("Model placed at", dolphinModel.position);
 
@@ -97,9 +98,7 @@ const ARScene = () => {
                 */
               });
             }
-            if (modelPlaced) {
-                    reticle.visible = false; // just in case
-                  }
+           
           });
 
           selectListenerAttached = true;
