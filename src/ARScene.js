@@ -6,10 +6,9 @@ import gsap from 'gsap';
 
 const ARScene = () => {
   const containerRef = useRef();
-  const [selectedModel, setSelectedModel] = useState('shark');
-  //const [modelPlaced, setModelPlaced] = useState(false);
-  const modelPlacedRef = useRef(false);
-  const [, forceUpdate] = useState(0);
+  //const [selectedModel, setSelectedModel] = useState('shark');
+  const [modelPlaced, setModelPlaced] = useState(false);
+  
 
 
   useEffect(() => {
@@ -61,7 +60,7 @@ const ARScene = () => {
 
      //Touch Event Listeners
     const onTouchStart = (e) => {
-      if (modelPlacedRef.current && e.touches.length === 1) {
+      if (modelPlaced  && e.touches.length === 1) {
         isTouching = true;
         previousTouchX = e.touches[0].clientX;
         previousTouchY = e.touches[0].clientY;
@@ -95,27 +94,21 @@ const ARScene = () => {
 
         if (!selectListenerAttached && session) {
           controller.addEventListener('select', () => {
-            if (reticle.visible && !modelPlacedRef.current) {
-                const modelPath = selectedModel === 'shark' ? 'models/shark.glb' : 'models/fish.glb';
+            if (reticle.visible && !modelPlaced) {
 
-                loader.load(modelPath, (gltf) => {
+                loader.load('models/shark.glb', (gltf) => {
                 // Remove existing model if any
-                if (activeModel) {
-                  scene.remove(activeModel);
-                  activeModel = null;
-                }
-
+               
                 activeModel = gltf.scene;
                 activeModel.position.setFromMatrixPosition(reticle.matrix);
                 activeModel.scale.set(0.15, 0.15, 0.15);
                 scene.add(activeModel);
-                modelPlacedRef.current = true;
-                forceUpdate((x) => x + 1);
+                setModelPlaced(true);
 
                 reticle.visible = false;
 
                mixer = new THREE.AnimationMixer(activeModel);
-                if (gltf.animations && gltf.animations.length > 0) {
+                if (gltf.animations.length > 0) {
                   const clip = gltf.animations[0];
                   const action = mixer.clipAction(clip);
                   action.setLoop(THREE.LoopRepeat);
@@ -158,14 +151,7 @@ const ARScene = () => {
            
           });
 
-           session.addEventListener('end', () => {
-            hitTestSourceRequested = false;
-            hitTestSource = null;
-            selectListenerAttached = false;
-            modelPlacedRef.current = false;
-            forceUpdate((x) => x + 1);
-            activeModel = null;
-          });
+           
 
           
 
@@ -232,24 +218,11 @@ const ARScene = () => {
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
     };
-  }, [selectedModel, modelPlacedRef.current]);
+  }, [modelPlaced]);
 
- return (
-    <>
-      <select
-        onChange={(e) => {
-          setSelectedModel(e.target.value);
-          modelPlacedRef.current = false;
-          forceUpdate((x) => x + 1);
-        }}
-        style={{ position: 'absolute', top: 10, left: 10, zIndex: 10 }}
-      >
-        <option value="shark">Shark</option>
-        <option value="dolphin">Dolphin</option>
-      </select>
-      <div ref={containerRef} />
-    </>
-  );
+ return <div ref={containerRef} />
+   
+  
 };
 
 export default ARScene;
