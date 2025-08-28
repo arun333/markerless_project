@@ -95,7 +95,7 @@ const ARScene = () => {
 
         if (!selectListenerAttached && session) {
           controller.addEventListener('select', () => {
-            if (reticle.visible && !modelPlaced) {
+            if (reticle.visible && !modelPlacedRef.current) {
                 const modelPath = selectedModel === 'shark' ? 'models/shark.glb' : 'models/fish.glb';
 
                 loader.load(modelPath, (gltf) => {
@@ -162,7 +162,8 @@ const ARScene = () => {
             hitTestSourceRequested = false;
             hitTestSource = null;
             selectListenerAttached = false;
-            setModelPlaced(false);
+            modelPlacedRef.current = false;
+            forceUpdate((x) => x + 1);
             activeModel = null;
           });
 
@@ -231,14 +232,15 @@ const ARScene = () => {
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
     };
-  }, [selectedModel, modelPlaced]);
+  }, [selectedModel, modelPlacedRef.current]);
 
  return (
     <>
       <select
         onChange={(e) => {
           setSelectedModel(e.target.value);
-          setModelPlaced(false); // allow re-placing model
+          modelPlacedRef.current = false;
+          forceUpdate((x) => x + 1);
         }}
         style={{ position: 'absolute', top: 10, left: 10, zIndex: 10 }}
       >
