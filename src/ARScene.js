@@ -58,6 +58,35 @@ const ARScene = () => {
 
     const loader = new GLTFLoader();
 
+     //Touch Event Listeners
+    const onTouchStart = (e) => {
+      if (modelPlaced && e.touches.length === 1) {
+        isTouching = true;
+        previousTouchX = e.touches[0].clientX;
+        previousTouchY = e.touches[0].clientY;
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (!isTouching || e.touches.length !== 1 || !activeModel) return;
+      const deltaX = e.touches[0].clientX - previousTouchX;
+      const deltaY = e.touches[0].clientY - previousTouchY;
+      previousTouchX = e.touches[0].clientX;
+      previousTouchY = e.touches[0].clientY;
+
+      const rotationSpeed = 0.005;
+      activeModel.rotation.y += deltaX * rotationSpeed; // horizontal swipe
+      activeModel.rotation.x += deltaY * rotationSpeed; // vertical swipe
+    };
+
+    const onTouchEnd = () => {
+      isTouching = false;
+    };
+
+    window.addEventListener('touchstart', onTouchStart);
+    window.addEventListener('touchmove', onTouchMove);
+    window.addEventListener('touchend', onTouchEnd);
+
     renderer.setAnimationLoop((timestamp, frame) => {
       if (frame) {
         const referenceSpace = renderer.xr.getReferenceSpace();
@@ -189,45 +218,7 @@ const ARScene = () => {
 
     });
 
-    //Touch Event Listeners
-    const onTouchStart = (e) => {
-      if (modelPlaced && e.touches.length === 1) {
-        isTouching = true;
-        previousTouchX = e.touches[0].clientX;
-        previousTouchY = e.touches[0].clientY;
-
-      }
-    };
-
-    const onTouchMove = (e) => {
-      if (!isTouching || e.touches.length !== 1 || !activeModel) return;
-
-      const currentTouchX = e.touches[0].clientX;
-      const currentTouchY = e.touches[0].clientY;
-
-      const deltaX = currentTouchX - previousTouchX;
-      const deltaY = currentTouchY - previousTouchY;
-
-      previousTouchX = currentTouchX;
-      previousTouchY = currentTouchY;
-
-      const rotationSpeed = 0.005;
-      activeModel.rotation.y += deltaX * rotationSpeed; // Horizontal (left/right)
-      activeModel.rotation.x += deltaY * rotationSpeed; // Vertical (up/down)
-
-      // Optional: Clamp vertical rotation if needed (e.g., to avoid flipping)
-      activeModel.rotation.x = THREE.MathUtils.clamp(activeModel.rotation.x, -Math.PI / 2, Math.PI / 2);
-    };
-    
-
-    const onTouchEnd = () => {
-      isTouching = false;
-    };
-
-    window.addEventListener('touchstart', onTouchStart);
-    window.addEventListener('touchmove', onTouchMove);
-    window.addEventListener('touchend', onTouchEnd);
-
+   
     return () => {
       if (containerRef.current && renderer.domElement) {
         containerRef.current.removeChild(renderer.domElement);
