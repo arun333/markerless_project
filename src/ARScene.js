@@ -18,6 +18,10 @@ const ARScene = () => {
     let mixer;
     const clock = new THREE.Clock();
 
+      // Touch rotation variables
+    let isTouching = false;
+    let previousTouchX = 0;
+
 
 
     scene = new THREE.Scene();
@@ -168,11 +172,40 @@ const ARScene = () => {
 
     });
 
+    // ➕ Touch Event Listeners
+    const onTouchStart = (e) => {
+      if (modelPlaced && e.touches.length === 1) {
+        isTouching = true;
+        previousTouchX = e.touches[0].clientX;
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (!isTouching || e.touches.length !== 1 || !dolphinModel) return;
+      const deltaX = e.touches[0].clientX - previousTouchX;
+      previousTouchX = e.touches[0].clientX;
+
+      const rotationSpeed = 0.005;
+      dolphinModel.rotation.y += deltaX * rotationSpeed;
+    };
+    
+
+    const onTouchEnd = () => {
+      isTouching = false;
+    };
+
+    window.addEventListener('touchstart', onTouchStart);
+    window.addEventListener('touchmove', onTouchMove);
+    window.addEventListener('touchend', onTouchEnd);
+
     return () => {
       if (containerRef.current && renderer.domElement) {
         containerRef.current.removeChild(renderer.domElement);
       }
       renderer.dispose();
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
     };
   }, []);
 
