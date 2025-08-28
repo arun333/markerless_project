@@ -15,6 +15,8 @@ const ARScene = () => {
     let selectListenerAttached = false;
     let dolphinModel = null; // globally track your model
     let modelPlaced = false;
+    let mixer;
+    const clock = new THREE.Clock();
 
 
 
@@ -60,6 +62,14 @@ const ARScene = () => {
                 dolphinModel.position.setFromMatrixPosition(reticle.matrix);
                 dolphinModel.scale.set(0.15, 0.15, 0.15);
                 scene.add(dolphinModel);
+
+               mixer = new THREE.AnimationMixer(dolphinModel);
+                const clip = gltf.animations[0];
+                const action = mixer.clipAction(clip);
+                action.setLoop(THREE.LoopRepeat);
+                action.clampWhenFinished = true;
+                action.play();
+
                 modelPlaced=true;
                 reticle.visible = false;
 
@@ -98,7 +108,6 @@ const ARScene = () => {
                 */
               });
             }
-              reticle.visible = false;
 
            
           });
@@ -150,9 +159,13 @@ const ARScene = () => {
               dolphinModel.lookAt(cameraPosition); 
 
     }
-  }
+     const delta = clock.getDelta();
+      if (mixer) mixer.update(delta);
 
       renderer.render(scene, camera);
+
+  }
+
     });
 
     return () => {
