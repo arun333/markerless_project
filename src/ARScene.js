@@ -6,6 +6,9 @@ import gsap from 'gsap';
 
 const ARScene = () => {
   const containerRef = useRef();
+  const [selectedModel, setSelectedModel] = useState('shark');
+  const [modelPlaced, setModelPlaced] = useState(false);
+
 
   useEffect(() => {
     let scene, camera, renderer, controller;
@@ -63,24 +66,29 @@ const ARScene = () => {
         if (!selectListenerAttached && session) {
           controller.addEventListener('select', () => {
             if (reticle.visible && !modelPlaced) {
-                loader.load('models/shark.glb', (gltf) => {
-                dolphinModel = gltf.scene;
-                dolphinModel.position.setFromMatrixPosition(reticle.matrix);
-                dolphinModel.scale.set(0.15, 0.15, 0.15);
-                scene.add(dolphinModel);
+                const modelPath = selectedModel === 'shark' ? 'models/shark.glb' : 'models/fish.glb';
 
-               mixer = new THREE.AnimationMixer(dolphinModel);
-                const clip = gltf.animations[0];
-                const action = mixer.clipAction(clip);
-                action.setLoop(THREE.LoopRepeat);
-                action.clampWhenFinished = true;
-                action.play();
+                loader.load(modelPath, (gltf) => {
+                // Remove existing model if any
+                if (activeModel) {
+                  scene.remove(activeModel);
+                  activeModel = null;
+                }
 
-                modelPlaced=true;
+                activeModel = gltf.scene;
+                activeModel.position.setFromMatrixPosition(reticle.matrix);
+                activeModel.scale.set(0.15, 0.15, 0.15);
+                scene.add(activeModel);
+                setModelPlaced(true);
                 reticle.visible = false;
 
-                console.log("Model placed at", dolphinModel.position);
-
+               mixer = new THREE.AnimationMixer(activeModel);
+                if (gltf.animations && gltf.animations.length > 0) {
+                  const clip = gltf.animations[0];
+                  const action = mixer.clipAction(clip);
+                  action.setLoop(THREE.LoopRepeat);
+                  action.play();
+                }
                 
                 /*
 
@@ -118,6 +126,16 @@ const ARScene = () => {
            
           });
 
+           session.addEventListener('end', () => {
+            hitTestSourceRequested = false;
+            hitTestSource = null;
+            selectListenerAttached = false;
+            setModelPlaced(false);
+            activeModel = null;
+          });
+
+          
+
           selectListenerAttached = true;
         }
 
@@ -129,18 +147,13 @@ const ARScene = () => {
             });
           });
 
-          session.addEventListener('end', () => {
-            hitTestSourceRequested = false;
-            hitTestSource = null;
-            selectListenerAttached = false;
-          });
 
           hitTestSourceRequested = true;
         }
 
         if (hitTestSource) {
           const hitTestResults = frame.getHitTestResults(hitTestSource);
-          if (hitTestResults.length) {
+          if (hitTestResults.length>0) {
             const hit = hitTestResults[0];
             const pose = hit.getPose(renderer.xr.getReferenceSpace());
             reticle.visible = true;
@@ -149,6 +162,7 @@ const ARScene = () => {
             reticle.visible = false;
           }
         }
+        /*
         if (dolphinModel) {
              const camera = renderer.xr.getCamera();
               const cameraPosition = new THREE.Vector3();
@@ -165,6 +179,7 @@ const ARScene = () => {
              // dolphinModel.lookAt(cameraPosition); 
 
     }
+             */
      const delta = clock.getDelta();
       if (mixer) mixer.update(delta);
 
@@ -222,9 +237,23 @@ const ARScene = () => {
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
     };
-  }, []);
+  }, [selectedModel, modelPlaced]);
 
-  return <div ref={containerRef} />;
+ return (
+    <>
+      <select
+        onChange={(e) => {
+          setSelectedModel(e.target.value);
+          setModelPlaced(false); // allow re-placing model
+        }}
+        style={{ position: 'absolute', top: 10, left: 10, zIndex: 10 }}
+      >
+        <option value="shark">Shark</option>
+        <option value="dolphin">Dolphin</option>
+      </select>
+      <div ref={containerRef} />
+    </>
+  );
 };
 
 export default ARScene;
