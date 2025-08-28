@@ -21,6 +21,8 @@ const ARScene = () => {
       // Touch rotation variables
     let isTouching = false;
     let previousTouchX = 0;
+    let previousTouchY = 0;
+
 
 
 
