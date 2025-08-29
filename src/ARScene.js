@@ -17,6 +17,8 @@ const ARScene = () => {
     let hitTestSourceRequested = false;
     let selectListenerAttached = false;
     let model = null; // globally track your model
+    let modelGroup = null;
+
     let modelPlaced = false;
     let mixer;
     const clock = new THREE.Clock();
@@ -67,26 +69,36 @@ const ARScene = () => {
           controller.addEventListener('select', () => {
             if (reticle.visible && !modelPlaced) {
                 loader.load(`models/${selectedModel}`, (gltf) => {
-                if (model) {
-                  scene.remove(model);
-                  model = null;
+                if (modelGroup) {
+                  scene.remove(modelGroup);
+                  modelGroup = null;
                 }
 
 
               model = gltf.scene;
-              model.position.setFromMatrixPosition(reticle.matrix);
-              model.scale.set(0.15, 0.15, 0.15);
-              scene.add(model);
-
-              model.userData.originalY = model.position.y;
+              modelGroup = new THREE.Group();
+              modelGroup.add(model);
 
 
-              mixer = new THREE.AnimationMixer(model);
-              const clip = gltf.animations[0];
-              const action = mixer.clipAction(clip);
-              action.setLoop(THREE.LoopRepeat);
-              //action.clampWhenFinished = true;
-              action.play();
+              modelGroup.position.setFromMatrixPosition(reticle.matrix);
+              modelGroup.scale.set(0.15, 0.15, 0.15);
+
+              modelGroup.userData.originalY = modelGroup.position.y;
+
+              scene.add(modelGroup);
+
+
+               mixer = new THREE.AnimationMixer(model);
+                if (gltf.animations && gltf.animations.length > 0) {
+                  gltf.animations.forEach((clip) => {
+                    const action = mixer.clipAction(clip);
+                    action.setLoop(THREE.LoopRepeat);
+                    action.play();
+                  });
+                } else {
+                  console.warn('No animations found in glTF model');
+                }
+
               modelPlaced = true;
 
               reticle.visible = false;
@@ -94,36 +106,7 @@ const ARScene = () => {
                 //console.log("Model placed at", dolphinModel.position);
 
                 
-                /*
-
-                // Animate model jump toward camera
-                const cameraDir = new THREE.Vector3();
-                camera.getWorldDirection(cameraDir);
-                cameraDir.multiplyScalar(0.5); // how far forward to jump
-
-                const jumpTarget = {
-                  x: model.position.x + cameraDir.x,
-                  y: model.position.y + 0.3, // jump height
-                  z: model.position.z + cameraDir.z,
-                };
-
-                gsap.to(model.position, {
-                  ...jumpTarget,
-                  duration: 1.5,
-                  ease: 'power2.out',
-                  yoyo: true,
-                  repeat: 1,
-                  onComplete: () => {
-                    console.log('Jump animation complete');
-                  },
-                });
-
-                gsap.to(model.rotation, {
-                  y: model.rotation.y + Math.PI * 2,
-                  duration: 1.5,
-                  ease: 'power2.inOut',
-                });
-                */
+               
               });
             }
 
@@ -146,9 +129,9 @@ const ARScene = () => {
             hitTestSource = null;
             selectListenerAttached = false;
             modelPlaced = false;
-            if (model) {
-              scene.remove(model);
-              model = null;
+            if (modelGroup) {
+              scene.remove(modelGroup);
+              modelGroup = null;
             }
           });
 
@@ -166,7 +149,7 @@ const ARScene = () => {
             reticle.visible = false;
           }
         }
-        if (model && !modelPlaced) {
+        if (modelGroup && !modelPlaced) {
              const camera = renderer.xr.getCamera();
               const cameraPosition = new THREE.Vector3();
               camera.getWorldPosition(cameraPosition);
@@ -178,14 +161,14 @@ const ARScene = () => {
               const distance = 1.0;
               const targetPosition = cameraPosition.clone().add(cameraDirection.multiplyScalar(distance));
 
-              model.position.lerp(targetPosition, 0.1); // Smoothly follow
+              modelGroup.position.lerp(targetPosition, 0.1); // Smoothly follow
              // dolphinModel.lookAt(cameraPosition); 
 
         }
 
-         if (model && selectedModel === 'whale.glb' && modelPlaced) {
+         if (modelGroup && selectedModel === 'whale.glb' && modelPlaced) {
           const t = clock.getElapsedTime();
-          model.position.y = model.userData.originalY + Math.sin(t * 2) * 0.05;
+          modelGroup.position.y = modelGroup.userData.originalY + Math.sin(t * 2) * 0.05;
         }
         const delta = clock.getDelta();
           if (mixer) mixer.update(delta);
@@ -207,7 +190,7 @@ const ARScene = () => {
     };
 
     const onTouchMove = (e) => {
-      if (!isTouching || e.touches.length !== 1 || !model) return;
+      if (!isTouching || e.touches.length !== 1 || !modelGroup) return;
 
       const currentTouchX = e.touches[0].clientX;
       const currentTouchY = e.touches[0].clientY;
@@ -219,11 +202,11 @@ const ARScene = () => {
       previousTouchY = currentTouchY;
 
       const rotationSpeed = 0.005;
-      model.rotation.y += deltaX * rotationSpeed; // Horizontal (left/right)
-      model.rotation.x += deltaY * rotationSpeed; // Vertical (up/down)
+      modelGroup.rotation.y += deltaX * rotationSpeed; // Horizontal (left/right)
+      modelGroup.rotation.x += deltaY * rotationSpeed; // Vertical (up/down)
 
       // Optional: Clamp vertical rotation if needed (e.g., to avoid flipping)
-      model.rotation.x = THREE.MathUtils.clamp(model.rotation.x, -Math.PI / 2, Math.PI / 2);
+      modelGroup.rotation.x = THREE.MathUtils.clamp(modelGroup.rotation.x, -Math.PI / 2, Math.PI / 2);
     };
     
 
