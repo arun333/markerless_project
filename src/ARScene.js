@@ -71,6 +71,8 @@ const ARScene = () => {
                   scene.remove(model);
                   model = null;
                 }
+                modelPlaced=false;
+
 
                 model = gltf.scene;
                 model.position.setFromMatrixPosition(reticle.matrix);
@@ -84,7 +86,6 @@ const ARScene = () => {
                 //action.clampWhenFinished = true;
                 action.play();
 
-                modelPlaced=true;
                 reticle.visible = false;
 
                 //console.log("Model placed at", dolphinModel.position);
@@ -243,7 +244,7 @@ const ARScene = () => {
       <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 999 }}>
         <select
           value={selectedModel}
-          onChange={(e) => window.location.reload()} // reload scene for new model
+          onChange={(e) => {setSelectedModel(e.target.value);}}
         >
           <option value="shark.glb">Shark</option>
           <option value="fish.glb">Dolphin</option>
