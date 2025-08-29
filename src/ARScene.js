@@ -2,13 +2,10 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
-import gsap from 'gsap';
-import { mod } from 'three/tsl';
 
 const ARScene = () => {
   const containerRef = useRef();
   const [selectedModel, setSelectedModel] = useState('shark.glb');
-
 
   useEffect(() => {
     let scene, camera, renderer, controller;
@@ -16,21 +13,18 @@ const ARScene = () => {
     let hitTestSource = null;
     let hitTestSourceRequested = false;
     let selectListenerAttached = false;
-    let model = null; // globally track your model
-    let modelGroup = null;
 
+    let modelGroup = null;
+    let mixer = null;
     let modelPlaced = false;
-    let mixer;
     const clock = new THREE.Clock();
 
-      // Touch rotation variables
+    // Rotation
     let isTouching = false;
     let previousTouchX = 0;
     let previousTouchY = 0;
 
-
-
-
+    // Setup
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera();
 
@@ -60,59 +54,47 @@ const ARScene = () => {
 
     const loader = new GLTFLoader();
 
+    const placeModel = (matrix) => {
+      loader.load(`models/${selectedModel}`, (gltf) => {
+        if (modelGroup) {
+          scene.remove(modelGroup);
+          modelGroup = null;
+        }
+
+        const model = gltf.scene;
+        modelGroup = new THREE.Group();
+        modelGroup.add(model);
+        modelGroup.scale.set(0.15, 0.15, 0.15);
+        modelGroup.position.setFromMatrixPosition(matrix);
+        modelGroup.userData.originalY = modelGroup.position.y;
+
+        scene.add(modelGroup);
+
+        // Setup animation
+        mixer = new THREE.AnimationMixer(model);
+        if (gltf.animations.length > 0) {
+          gltf.animations.forEach((clip) => {
+            const action = mixer.clipAction(clip);
+            action.play();
+          });
+        }
+
+        modelPlaced = true;
+        reticle.visible = false;
+      });
+    };
+
+    // Animation loop
     renderer.setAnimationLoop((timestamp, frame) => {
       if (frame) {
-        const referenceSpace = renderer.xr.getReferenceSpace();
         const session = renderer.xr.getSession();
 
-        if (!selectListenerAttached && session) {
+        if (!selectListenerAttached) {
           controller.addEventListener('select', () => {
             if (reticle.visible && !modelPlaced) {
-                loader.load(`models/${selectedModel}`, (gltf) => {
-                if (modelGroup) {
-                  scene.remove(modelGroup);
-                  modelGroup = null;
-                }
-
-
-              model = gltf.scene;
-              modelGroup = new THREE.Group();
-              modelGroup.add(model);
-
-
-              modelGroup.position.setFromMatrixPosition(reticle.matrix);
-              modelGroup.scale.set(0.15, 0.15, 0.15);
-
-              modelGroup.userData.originalY = modelGroup.position.y;
-
-              scene.add(modelGroup);
-
-
-               mixer = new THREE.AnimationMixer(model);
-                if (gltf.animations && gltf.animations.length > 0) {
-                  gltf.animations.forEach((clip) => {
-                    const action = mixer.clipAction(clip);
-                    action.setLoop(THREE.LoopRepeat);
-                    action.play();
-                  });
-                } else {
-                  console.warn('No animations found in glTF model');
-                }
-
-              modelPlaced = true;
-
-              reticle.visible = false;
-
-                //console.log("Model placed at", dolphinModel.position);
-
-                
-               
-              });
+              placeModel(reticle.matrix);
             }
-
-           
           });
-
           selectListenerAttached = true;
         }
 
@@ -120,15 +102,14 @@ const ARScene = () => {
           session.requestReferenceSpace('viewer').then((refSpace) => {
             session.requestHitTestSource({ space: refSpace }).then((source) => {
               hitTestSource = source;
-              console.log("Hit test source ready");
             });
           });
 
           session.addEventListener('end', () => {
             hitTestSourceRequested = false;
             hitTestSource = null;
-            selectListenerAttached = false;
             modelPlaced = false;
+            selectListenerAttached = false;
             if (modelGroup) {
               scene.remove(modelGroup);
               modelGroup = null;
@@ -140,7 +121,7 @@ const ARScene = () => {
 
         if (hitTestSource) {
           const hitTestResults = frame.getHitTestResults(hitTestSource);
-          if (hitTestResults.length) {
+          if (hitTestResults.length > 0) {
             const hit = hitTestResults[0];
             const pose = hit.getPose(renderer.xr.getReferenceSpace());
             reticle.visible = true;
@@ -149,66 +130,43 @@ const ARScene = () => {
             reticle.visible = false;
           }
         }
-        if (modelGroup && !modelPlaced) {
-             const camera = renderer.xr.getCamera();
-              const cameraPosition = new THREE.Vector3();
-              camera.getWorldPosition(cameraPosition);
 
-              const cameraDirection = new THREE.Vector3();
-              camera.getWorldDirection(cameraDirection);
+        const delta = clock.getDelta();
+        if (mixer) mixer.update(delta);
 
-              // Set dolphin in front of the camera at a fixed distance (e.g. 1 meter)
-              const distance = 1.0;
-              const targetPosition = cameraPosition.clone().add(cameraDirection.multiplyScalar(distance));
-
-              modelGroup.position.lerp(targetPosition, 0.1); // Smoothly follow
-             // dolphinModel.lookAt(cameraPosition); 
-
-        }
-
-         if (modelGroup && selectedModel === 'whale.glb' && modelPlaced) {
+        // Dolphin floating effect
+        if (modelGroup && selectedModel === 'whale.glb') {
           const t = clock.getElapsedTime();
           modelGroup.position.y = modelGroup.userData.originalY + Math.sin(t * 2) * 0.05;
         }
-        const delta = clock.getDelta();
-          if (mixer) mixer.update(delta);
 
-          renderer.render(scene, camera);
-
-  }
-
+        renderer.render(scene, camera);
+      }
     });
 
-    //Touch Event Listeners
+    // Touch rotation
     const onTouchStart = (e) => {
       if (modelPlaced && e.touches.length === 1) {
         isTouching = true;
         previousTouchX = e.touches[0].clientX;
         previousTouchY = e.touches[0].clientY;
-
       }
     };
 
     const onTouchMove = (e) => {
-      if (!isTouching || e.touches.length !== 1 || !modelGroup) return;
+      if (!isTouching || !modelGroup || e.touches.length !== 1) return;
 
-      const currentTouchX = e.touches[0].clientX;
-      const currentTouchY = e.touches[0].clientY;
+      const deltaX = e.touches[0].clientX - previousTouchX;
+      const deltaY = e.touches[0].clientY - previousTouchY;
+      previousTouchX = e.touches[0].clientX;
+      previousTouchY = e.touches[0].clientY;
 
-      const deltaX = currentTouchX - previousTouchX;
-      const deltaY = currentTouchY - previousTouchY;
+      const speed = 0.005;
+      modelGroup.rotation.y += deltaX * speed;
+      modelGroup.rotation.x += deltaY * speed;
 
-      previousTouchX = currentTouchX;
-      previousTouchY = currentTouchY;
-
-      const rotationSpeed = 0.005;
-      modelGroup.rotation.y += deltaX * rotationSpeed; // Horizontal (left/right)
-      modelGroup.rotation.x += deltaY * rotationSpeed; // Vertical (up/down)
-
-      // Optional: Clamp vertical rotation if needed (e.g., to avoid flipping)
       modelGroup.rotation.x = THREE.MathUtils.clamp(modelGroup.rotation.x, -Math.PI / 2, Math.PI / 2);
     };
-    
 
     const onTouchEnd = () => {
       isTouching = false;
@@ -231,17 +189,15 @@ const ARScene = () => {
 
   return (
     <div>
-      {/* Dropdown menu */}
       <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 999 }}>
         <select
           value={selectedModel}
-          onChange={(e) => {setSelectedModel(e.target.value);}}
+          onChange={(e) => setSelectedModel(e.target.value)}
         >
           <option value="shark.glb">Shark</option>
           <option value="whale.glb">Dolphin</option>
         </select>
       </div>
-
       <div ref={containerRef} />
     </div>
   );
