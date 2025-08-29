@@ -78,10 +78,10 @@ const ARScene = () => {
               model.scale.set(0.15, 0.15, 0.15);
               scene.add(model);
 
-              if (selectedModel === 'whale.glb') {
-                model.userData.baseX = model.position.x;
-                model.userData.baseZ = model.position.z;
-              }
+              model.userData.originalY = model.position.y;
+
+
+              
 
                mixer = new THREE.AnimationMixer(model);
               const clip = gltf.animations[0];
@@ -168,6 +168,7 @@ const ARScene = () => {
             reticle.visible = false;
           }
         }
+        /*
         
         if (model && !modelPlaced) {
              const camera = renderer.xr.getCamera();
@@ -185,12 +186,13 @@ const ARScene = () => {
              // dolphinModel.lookAt(cameraPosition); 
 
       }
+             */
 
-    if (model && selectedModel === 'whale.glb' && modelPlaced) {
-      const t = clock.getElapsedTime();
-      model.position.x = model.userData.baseX + Math.sin(t) * 0.3;
-      model.position.z = model.userData.baseZ + Math.cos(t) * 0.3;
-    }
+     if (model && selectedModel === 'whale.glb' && modelPlaced) {
+          const t = clock.getElapsedTime();
+          model.position.y = model.userData.originalY + Math.sin(t * 2) * 0.05;
+        }
+        
      const delta = clock.getDelta();
       if (mixer) mixer.update(delta);
 
