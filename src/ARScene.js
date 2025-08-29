@@ -138,7 +138,20 @@ const ARScene = () => {
         // Dolphin floating effect
         if (modelGroup && selectedModel === 'whale.glb') {
           const t = clock.getElapsedTime();
+          const cameraObj = renderer.xr.getCamera();
+
           modelGroup.position.y = modelGroup.userData.originalY + Math.sin(t * 2) * 0.05;
+
+           const dolphinPosition = modelGroup.position.clone();
+          const cameraPosition = new THREE.Vector3();
+          cameraObj.getWorldPosition(cameraPosition);
+
+          // Get direction vector from dolphin to camera
+          const direction = cameraPosition.clone().sub(dolphinPosition).normalize();
+          const moveSpeed = 0.005; // adjust for slower/faster approach
+
+          // Update position
+          modelGroup.position.add(direction.multiplyScalar(moveSpeed));
         }
 
         renderer.render(scene, camera);
