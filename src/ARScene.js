@@ -79,11 +79,9 @@ const ARScene = () => {
               scene.add(model);
 
               model.userData.originalY = model.position.y;
-
-
               
 
-               mixer = new THREE.AnimationMixer(model);
+              mixer = new THREE.AnimationMixer(gltf.scene);
               const clip = gltf.animations[0];
               const action = mixer.clipAction(clip);
               action.setLoop(THREE.LoopRepeat);
@@ -93,39 +91,9 @@ const ARScene = () => {
 
               reticle.visible = false;
 
-                //console.log("Model placed at", dolphinModel.position);
-
+              
                 
-                /*
-
-                // Animate model jump toward camera
-                const cameraDir = new THREE.Vector3();
-                camera.getWorldDirection(cameraDir);
-                cameraDir.multiplyScalar(0.5); // how far forward to jump
-
-                const jumpTarget = {
-                  x: model.position.x + cameraDir.x,
-                  y: model.position.y + 0.3, // jump height
-                  z: model.position.z + cameraDir.z,
-                };
-
-                gsap.to(model.position, {
-                  ...jumpTarget,
-                  duration: 1.5,
-                  ease: 'power2.out',
-                  yoyo: true,
-                  repeat: 1,
-                  onComplete: () => {
-                    console.log('Jump animation complete');
-                  },
-                });
-
-                gsap.to(model.rotation, {
-                  y: model.rotation.y + Math.PI * 2,
-                  duration: 1.5,
-                  ease: 'power2.inOut',
-                });
-                */
+                
               });
             }
 
@@ -192,7 +160,7 @@ const ARScene = () => {
           const t = clock.getElapsedTime();
           model.position.y = model.userData.originalY + Math.sin(t * 2) * 0.05;
         }
-        
+
      const delta = clock.getDelta();
       if (mixer) mixer.update(delta);
 
