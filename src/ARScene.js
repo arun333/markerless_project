@@ -3,9 +3,12 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
 import gsap from 'gsap';
+import { mod } from 'three/tsl';
 
 const ARScene = () => {
   const containerRef = useRef();
+  const [selectedModel, setSelectedModel] = useState('shark.glb');
+
 
   useEffect(() => {
     let scene, camera, renderer, controller;
@@ -13,7 +16,7 @@ const ARScene = () => {
     let hitTestSource = null;
     let hitTestSourceRequested = false;
     let selectListenerAttached = false;
-    let dolphinModel = null; // globally track your model
+    let model = null; // globally track your model
     let modelPlaced = false;
     let mixer;
     const clock = new THREE.Clock();
@@ -63,23 +66,28 @@ const ARScene = () => {
         if (!selectListenerAttached && session) {
           controller.addEventListener('select', () => {
             if (reticle.visible && !modelPlaced) {
-                loader.load('models/shark.glb', (gltf) => {
-                dolphinModel = gltf.scene;
-                dolphinModel.position.setFromMatrixPosition(reticle.matrix);
-                dolphinModel.scale.set(0.15, 0.15, 0.15);
-                scene.add(dolphinModel);
+                loader.load(`models/${selectedModel}`, (gltf) => {
+                if (model) {
+                  scene.remove(model);
+                  model = null;
+                }
 
-               mixer = new THREE.AnimationMixer(dolphinModel);
+                model = gltf.scene;
+                model.position.setFromMatrixPosition(reticle.matrix);
+                model.scale.set(0.15, 0.15, 0.15);
+                scene.add(model);
+
+               mixer = new THREE.AnimationMixer(model);
                 const clip = gltf.animations[0];
                 const action = mixer.clipAction(clip);
                 action.setLoop(THREE.LoopRepeat);
-                action.clampWhenFinished = true;
+                //action.clampWhenFinished = true;
                 action.play();
 
                 modelPlaced=true;
                 reticle.visible = false;
 
-                console.log("Model placed at", dolphinModel.position);
+                //console.log("Model placed at", dolphinModel.position);
 
                 
                 /*
@@ -133,6 +141,11 @@ const ARScene = () => {
             hitTestSourceRequested = false;
             hitTestSource = null;
             selectListenerAttached = false;
+            modelPlaced = false;
+            if (model) {
+              scene.remove(model);
+              model = null;
+            }
           });
 
           hitTestSourceRequested = true;
@@ -149,7 +162,7 @@ const ARScene = () => {
             reticle.visible = false;
           }
         }
-        if (dolphinModel) {
+        if (model) {
              const camera = renderer.xr.getCamera();
               const cameraPosition = new THREE.Vector3();
               camera.getWorldPosition(cameraPosition);
@@ -161,7 +174,7 @@ const ARScene = () => {
               const distance = 1.0;
               const targetPosition = cameraPosition.clone().add(cameraDirection.multiplyScalar(distance));
 
-              dolphinModel.position.lerp(targetPosition, 0.1); // Smoothly follow
+              model.position.lerp(targetPosition, 0.1); // Smoothly follow
              // dolphinModel.lookAt(cameraPosition); 
 
     }
@@ -185,7 +198,7 @@ const ARScene = () => {
     };
 
     const onTouchMove = (e) => {
-      if (!isTouching || e.touches.length !== 1 || !dolphinModel) return;
+      if (!isTouching || e.touches.length !== 1 || !model) return;
 
       const currentTouchX = e.touches[0].clientX;
       const currentTouchY = e.touches[0].clientY;
@@ -197,11 +210,11 @@ const ARScene = () => {
       previousTouchY = currentTouchY;
 
       const rotationSpeed = 0.005;
-      dolphinModel.rotation.y += deltaX * rotationSpeed; // Horizontal (left/right)
-      dolphinModel.rotation.x += deltaY * rotationSpeed; // Vertical (up/down)
+      model.rotation.y += deltaX * rotationSpeed; // Horizontal (left/right)
+      model.rotation.x += deltaY * rotationSpeed; // Vertical (up/down)
 
       // Optional: Clamp vertical rotation if needed (e.g., to avoid flipping)
-      dolphinModel.rotation.x = THREE.MathUtils.clamp(dolphinModel.rotation.x, -Math.PI / 2, Math.PI / 2);
+      model.rotation.x = THREE.MathUtils.clamp(model.rotation.x, -Math.PI / 2, Math.PI / 2);
     };
     
 
@@ -222,9 +235,24 @@ const ARScene = () => {
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
     };
-  }, []);
+  }, [selectedModel]);
 
-  return <div ref={containerRef} />;
+  return (
+    <div>
+      {/* Dropdown menu */}
+      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 999 }}>
+        <select
+          value={selectedModel}
+          onChange={(e) => window.location.reload()} // reload scene for new model
+        >
+          <option value="shark.glb">Shark</option>
+          <option value="fish.glb">Dolphin</option>
+        </select>
+      </div>
+
+      <div ref={containerRef} />
+    </div>
+  );
 };
 
 export default ARScene;
