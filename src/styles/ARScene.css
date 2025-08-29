@@ -1,0 +1,60 @@
+.ar-container {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #e0f7fa, #80deea);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
+}
+
+.ui-overlay {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #004d40;
+  margin-bottom: 10px;
+}
+
+.dropdown {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  font-size: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.dropdown:hover {
+  transform: scale(1.03);
+}
+
+.instruction {
+  font-size: 14px;
+  color: #004d40;
+  background-color: rgba(255, 255, 255, 0.65);
+  padding: 8px 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+}
+
+.ar-scene canvas {
+  width: 100% !important;
+  height: 100% !important;
+}

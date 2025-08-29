@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
+import './styles/ARScene.css';
 
 const ARScene = () => {
   const containerRef = useRef();
@@ -188,18 +189,24 @@ const ARScene = () => {
   }, [selectedModel]);
 
   return (
-    <div>
-      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 999 }}>
-        <select
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-        >
-          <option value="shark.glb">Shark</option>
-          <option value="whale.glb">Dolphin</option>
-        </select>
-      </div>
-      <div ref={containerRef} />
+    <div className="ar-container">
+    <div className="ui-overlay">
+      <h1 className="title">🐬 Ocean AR Viewer</h1>
+
+      <select
+        className="dropdown"
+        value={selectedModel}
+        onChange={(e) => setSelectedModel(e.target.value)}
+      >
+        <option value="shark.glb">Shark</option>
+        <option value="whale.glb">Dolphin</option>
+      </select>
+
+      <p className="instruction">Tap on the screen to place your selected model.</p>
     </div>
+
+    <div ref={containerRef} className="ar-scene" />
+  </div>
   );
 };
 
