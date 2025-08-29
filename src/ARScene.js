@@ -76,22 +76,32 @@ const ARScene = () => {
               model = gltf.scene;
               model.position.setFromMatrixPosition(reticle.matrix);
               model.scale.set(0.15, 0.15, 0.15);
-              scene.add(model);
+      
+              
+                if (selectedModel === 'whale.glb') {
+                  // Create pivot for dolphin orbit
+                  const pivot = new THREE.Object3D();
+                  pivot.position.setFromMatrixPosition(reticle.matrix);
+                  pivot.rotation.x = THREE.MathUtils.degToRad(15); // Orbit tilt
+                  scene.add(pivot);
 
-              if (selectedModel === 'whale.glb') {
-                model.userData.baseX = model.position.x;
-                model.userData.baseZ = model.position.z;
-              }
+                  pivot.add(model);
+                  model.userData.pivot = pivot;
+                } else {
+                  model.position.setFromMatrixPosition(reticle.matrix);
+                  scene.add(model);
+                }
 
-               mixer = new THREE.AnimationMixer(model);
-              const clip = gltf.animations[0];
-              const action = mixer.clipAction(clip);
-              action.setLoop(THREE.LoopRepeat);
-              //action.clampWhenFinished = true;
-              action.play();
-              modelPlaced = true;
+                mixer = new THREE.AnimationMixer(model);
+                if (gltf.animations.length > 0) {
+                  const clip = gltf.animations[0];
+                  const action = mixer.clipAction(clip);
+                  action.setLoop(THREE.LoopRepeat);
+                  action.play();
+                }
 
-              reticle.visible = false;
+                modelPlaced = true;
+                reticle.visible = false;
 
                 //console.log("Model placed at", dolphinModel.position);
 
@@ -148,8 +158,9 @@ const ARScene = () => {
             hitTestSource = null;
             selectListenerAttached = false;
             modelPlaced = false;
-            if (model) {
-              scene.remove(model);
+             if (model) {
+              if (model.userData.pivot) scene.remove(model.userData.pivot);
+              else scene.remove(model);
               model = null;
             }
           });
@@ -187,11 +198,13 @@ const ARScene = () => {
           }
              */
 
-    if (model && selectedModel === 'whale.glb' && modelPlaced) {
-      const t = clock.getElapsedTime();
-      model.position.x = model.userData.baseX + Math.sin(t) * 0.3;
-      model.position.z = model.userData.baseZ + Math.cos(t) * 0.3;
-    }
+    if (model && selectedModel === 'whale.glb' && modelPlaced && model.userData.pivot) {
+          const t = clock.getElapsedTime();
+          model.userData.pivot.rotation.y = t * 0.5; // Orbit spin
+          model.position.y = Math.sin(t * 2) * 0.05; // Bobbing
+          model.rotation.z = Math.sin(t * 2) * 0.2; // Banking
+        }
+
      const delta = clock.getDelta();
       if (mixer) mixer.update(delta);
 
