@@ -78,27 +78,49 @@ const ARScene = () => {
               model.scale.set(0.15, 0.15, 0.15);
               scene.add(model);
 
-              model.userData.originalY = model.position.y;
-
-              mixer = new THREE.AnimationMixer(gltf.scene); // or gltf.scenes[0]
-              if (gltf.animations && gltf.animations.length > 0) {
-                gltf.animations.forEach((clip) => {
-                  const action = mixer.clipAction(clip);
-                  action.setLoop(THREE.LoopRepeat);
-
-                  action.play();
-                });
-              } else {
-                console.warn("No animations found in gltf");
-              }
-              
+               mixer = new THREE.AnimationMixer(model);
+              const clip = gltf.animations[0];
+              const action = mixer.clipAction(clip);
+              action.setLoop(THREE.LoopRepeat);
+              //action.clampWhenFinished = true;
+              action.play();
               modelPlaced = true;
 
               reticle.visible = false;
 
-              
+                //console.log("Model placed at", dolphinModel.position);
+
                 
-                
+                /*
+
+                // Animate model jump toward camera
+                const cameraDir = new THREE.Vector3();
+                camera.getWorldDirection(cameraDir);
+                cameraDir.multiplyScalar(0.5); // how far forward to jump
+
+                const jumpTarget = {
+                  x: model.position.x + cameraDir.x,
+                  y: model.position.y + 0.3, // jump height
+                  z: model.position.z + cameraDir.z,
+                };
+
+                gsap.to(model.position, {
+                  ...jumpTarget,
+                  duration: 1.5,
+                  ease: 'power2.out',
+                  yoyo: true,
+                  repeat: 1,
+                  onComplete: () => {
+                    console.log('Jump animation complete');
+                  },
+                });
+
+                gsap.to(model.rotation, {
+                  y: model.rotation.y + Math.PI * 2,
+                  duration: 1.5,
+                  ease: 'power2.inOut',
+                });
+                */
               });
             }
 
@@ -141,8 +163,6 @@ const ARScene = () => {
             reticle.visible = false;
           }
         }
-        
-        
         if (model && !modelPlaced) {
              const camera = renderer.xr.getCamera();
               const cameraPosition = new THREE.Vector3();
@@ -158,14 +178,13 @@ const ARScene = () => {
               model.position.lerp(targetPosition, 0.1); // Smoothly follow
              // dolphinModel.lookAt(cameraPosition); 
 
-      }
-             
+    }
 
-     if (model && selectedModel === 'whale.glb' && modelPlaced) {
-          const t = clock.getElapsedTime();
-          model.position.y = model.userData.originalY + Math.sin(t * 2) * 0.05;
-        }
-
+    if (model && selectedModel === 'whale.glb') {
+        const t = clock.getElapsedTime();
+        model.position.x = Math.sin(t) * 0.5;
+        model.position.z = Math.cos(t) * 0.5;
+    }
      const delta = clock.getDelta();
       if (mixer) mixer.update(delta);
 
