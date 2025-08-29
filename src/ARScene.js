@@ -163,7 +163,7 @@ const ARScene = () => {
             reticle.visible = false;
           }
         }
-        if (model) {
+        if (model && !modelPlaced) {
              const camera = renderer.xr.getCamera();
               const cameraPosition = new THREE.Vector3();
               camera.getWorldPosition(cameraPosition);
