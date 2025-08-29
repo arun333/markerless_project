@@ -79,14 +79,19 @@ const ARScene = () => {
               scene.add(model);
 
               model.userData.originalY = model.position.y;
-              
 
-              mixer = new THREE.AnimationMixer(gltf.scene);
-              const clip = gltf.animations[0];
-              const action = mixer.clipAction(clip);
-              action.setLoop(THREE.LoopRepeat);
-              //action.clampWhenFinished = true;
-              action.play();
+              mixer = new THREE.AnimationMixer(gltf.scene); // or gltf.scenes[0]
+              if (gltf.animations && gltf.animations.length > 0) {
+                gltf.animations.forEach((clip) => {
+                  const action = mixer.clipAction(clip);
+                  action.setLoop(THREE.LoopRepeat);
+
+                  action.play();
+                });
+              } else {
+                console.warn("No animations found in gltf");
+              }
+              
               modelPlaced = true;
 
               reticle.visible = false;
@@ -136,7 +141,7 @@ const ARScene = () => {
             reticle.visible = false;
           }
         }
-        /*
+        
         
         if (model && !modelPlaced) {
              const camera = renderer.xr.getCamera();
@@ -154,7 +159,7 @@ const ARScene = () => {
              // dolphinModel.lookAt(cameraPosition); 
 
       }
-             */
+             
 
      if (model && selectedModel === 'whale.glb' && modelPlaced) {
           const t = clock.getElapsedTime();
