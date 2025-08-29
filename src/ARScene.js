@@ -179,12 +179,6 @@ const ARScene = () => {
              // dolphinModel.lookAt(cameraPosition); 
 
     }
-
-    if (model && selectedModel === 'whale.glb') {
-        const t = clock.getElapsedTime();
-        model.position.x = Math.sin(t) * 0.5;
-        model.position.z = Math.cos(t) * 0.5;
-    }
      const delta = clock.getDelta();
       if (mixer) mixer.update(delta);
 
