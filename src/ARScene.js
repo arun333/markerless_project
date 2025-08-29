@@ -247,7 +247,7 @@ const ARScene = () => {
           onChange={(e) => {setSelectedModel(e.target.value);}}
         >
           <option value="shark.glb">Shark</option>
-          <option value="fish.glb">Dolphin</option>
+          <option value="whale.glb">Dolphin</option>
         </select>
       </div>
 
