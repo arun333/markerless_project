@@ -71,22 +71,22 @@ const ARScene = () => {
                   scene.remove(model);
                   model = null;
                 }
-                modelPlaced=false;
 
 
-                model = gltf.scene;
-                model.position.setFromMatrixPosition(reticle.matrix);
-                model.scale.set(0.15, 0.15, 0.15);
-                scene.add(model);
+              model = gltf.scene;
+              model.position.setFromMatrixPosition(reticle.matrix);
+              model.scale.set(0.15, 0.15, 0.15);
+              scene.add(model);
 
                mixer = new THREE.AnimationMixer(model);
-                const clip = gltf.animations[0];
-                const action = mixer.clipAction(clip);
-                action.setLoop(THREE.LoopRepeat);
-                //action.clampWhenFinished = true;
-                action.play();
+              const clip = gltf.animations[0];
+              const action = mixer.clipAction(clip);
+              action.setLoop(THREE.LoopRepeat);
+              //action.clampWhenFinished = true;
+              action.play();
+              modelPlaced = true;
 
-                reticle.visible = false;
+              reticle.visible = false;
 
                 //console.log("Model placed at", dolphinModel.position);
 
