@@ -78,7 +78,10 @@ const ARScene = () => {
               model.scale.set(0.15, 0.15, 0.15);
               scene.add(model);
 
-               mixer = new THREE.AnimationMixer(model);
+              model.userData.originalY = model.position.y;
+
+
+              mixer = new THREE.AnimationMixer(model);
               const clip = gltf.animations[0];
               const action = mixer.clipAction(clip);
               action.setLoop(THREE.LoopRepeat);
@@ -178,11 +181,16 @@ const ARScene = () => {
               model.position.lerp(targetPosition, 0.1); // Smoothly follow
              // dolphinModel.lookAt(cameraPosition); 
 
-    }
-     const delta = clock.getDelta();
-      if (mixer) mixer.update(delta);
+        }
 
-      renderer.render(scene, camera);
+         if (model && selectedModel === 'whale.glb' && modelPlaced) {
+          const t = clock.getElapsedTime();
+          model.position.y = model.userData.originalY + Math.sin(t * 2) * 0.05;
+        }
+        const delta = clock.getDelta();
+          if (mixer) mixer.update(delta);
+
+          renderer.render(scene, camera);
 
   }
 
