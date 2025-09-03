@@ -236,6 +236,16 @@ const ARScene = () => {
     This project lets you explore marine life in Augmented Reality. Press START AR and find a flat surface like a table or floor, then tap one to place the model.
   </div>
 
+      <button
+      className="start-ar-button"
+      onClick={() => {
+        const arBtn = document.querySelector('button[style*="xr-button"]');
+        if (arBtn) arBtn.click();
+      }}
+    >
+      Start AR
+    </button>
+
       
   </div>
 
