@@ -147,6 +147,19 @@ const ARScene = () => {
           cameraObj.getWorldPosition(cameraPosition);
 
           // Get direction vector from dolphin to camera
+          /*
+                //this is a project to explore marine life in an Augmented Reality environment. Find a flat surface like table or floor and tap on the screen to place the selected model and hit the Start AR button.
+
+                1) Press the Start AR button
+                2) Find a plain surface and what did u see there? Green Ring
+                3) Can you tap on the screen to place the model and after what kind of model do u see? 
+                4) How long did it take to render the model? Is the model animated? Is thee model moving?
+                
+                5) Press X to go back to main  screen and select another model and ask what did u notice?
+
+                User 1 Observation: User was trying to move the model and tryong to place more than one model.
+
+          */
           const direction = cameraPosition.clone().sub(dolphinPosition).normalize();
           const moveSpeed = 0.005; // adjust for slower/faster approach
 
@@ -202,24 +215,52 @@ const ARScene = () => {
   }, [selectedModel]);
 
   return (
-    <div className="ar-container">
-    <div className="ui-overlay">
-      <h1 className="title">🐬 Ocean AR Viewer</h1>
+     <div className="ar-container">
+      
+      {/* UI Overlay Section */}
+      <div className="ui-overlay">
 
-      <select
-        className="dropdown"
-        value={selectedModel}
-        onChange={(e) => setSelectedModel(e.target.value)}
-      >
-        <option value="shark.glb">Shark</option>
-        <option value="whale.glb">Dolphin</option>
-      </select>
+        <div className="title">🌊 Explore Marine Life in AR</div>
 
-      <p className="instruction">Tap on the screen to place your selected model.</p>
+        <select
+          className="dropdown"
+          value={selectedModel}
+          onChange={(e) => setSelectedModel(e.target.value)}
+        >
+          <option value="shark.glb">Shark</option>
+          <option value="whale.glb">Dolphin</option>
+        </select>
+
+        <div className="instruction">
+          This is a project to explore marine life in an Augmented Reality environment.<br />
+          Find a flat surface like a table or floor and tap on the screen to place the selected model.<br />
+          Then hit the <strong>Start AR</strong> button.
+        </div>
+      </div>
+
+      {/* Start AR Button */}
+      <div style={{
+        position: 'absolute',
+        bottom: '10%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 999
+      }}>
+        <button
+          className="dropdown"
+          style={{ fontWeight: 'bold', fontSize: '18px' }}
+          onClick={() => {
+            const arBtn = document.querySelector('button[style*="ARButton"]');
+            if (arBtn) arBtn.click();
+          }}
+        >
+          🚀 Start AR
+        </button>
+      </div>
+
+      {/* AR Canvas */}
+      <div className="ar-scene" ref={containerRef}></div>
     </div>
-
-    <div ref={containerRef} className="ar-scene" />
-  </div>
   );
 };
 
