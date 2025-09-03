@@ -39,6 +39,12 @@ const ARScene = () => {
     document.body.appendChild(arButton); 
     window._arButton = arButton;
 
+    setTimeout(() => {
+    if (arButton && arButton.parentNode) {
+      arButton.parentNode.removeChild(arButton);
+    }
+  }, 100);
+
     const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
     scene.add(light);
 

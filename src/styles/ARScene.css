@@ -97,9 +97,7 @@
   transition: background-color 0.3s ease;
 }
 
-.start-ar-button:hover {
-  background-color: #e65100;
-}
+
 button[style*="xr-button"] {
   display: none !important;
 }
