@@ -58,3 +58,10 @@
   width: 100% !important;
   height: 100% !important;
 }
+.ui-overlay > * {
+  margin-bottom: 16px; /* space between elements */
+}
+
+.dropdown {
+  min-width: 200px;
+}

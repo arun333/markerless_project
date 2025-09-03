@@ -216,47 +216,51 @@ const ARScene = () => {
 
   return (
      <div className="ar-container">
-      
-      {/* UI Overlay Section */}
-      <div className="ui-overlay">
+    
+    {/* UI Overlay Section */}
+    <div className="ui-overlay">
 
-        <div className="title">🌊 Explore Marine Life in AR</div>
+      <div className="title">🌊 Explore Marine Life in AR</div>
 
-        <select
-          className="dropdown"
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-        >
-          <option value="shark.glb">Shark</option>
-          <option value="whale.glb">Dolphin</option>
-        </select>
+      {/* New instruction above dropdown */}
+      <div style={{ marginBottom: '6px', fontSize: '14px', color: '#004d40' }}>
+        Please select a model you want to view:
+      </div>
 
-        <div className="instruction">
-          This is a project to explore marine life in an Augmented Reality environment.<br />
-          Find a flat surface like a table or floor and tap on the screen to place the selected model.<br />
-          Then hit the <strong>Start AR</strong> button.
-        </div>
+      <select
+        className="dropdown"
+        value={selectedModel}
+        onChange={(e) => setSelectedModel(e.target.value)}
+      >
+        <option value="shark.glb">Shark</option>
+        <option value="whale.glb">Dolphin</option>
+      </select>
+
+      {/* Simplified instruction without background */}
+      <div className="instruction" style={{ backgroundColor: 'transparent', marginTop: '10px' }}>
+        This project lets you explore marine life in Augmented Reality.<br />
+        Find a flat surface like a table or floor,<br />
+        tap to place the model, and then hit <strong>Start AR</strong>.
       </div>
 
       {/* Start AR Button */}
-      <div style={{
-        position: 'absolute',
-        bottom: '10%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 999
-      }}>
-        <button
-          className="dropdown"
-          style={{ fontWeight: 'bold', fontSize: '18px' }}
-          onClick={() => {
-            const arBtn = document.querySelector('button[style*="ARButton"]');
-            if (arBtn) arBtn.click();
-          }}
-        >
-          🚀 Start AR
-        </button>
-      </div>
+      <button
+        className="dropdown"
+        style={{
+          marginTop: '18px',
+          fontWeight: 'bold',
+          fontSize: '18px',
+          padding: '12px 24px'
+        }}
+        onClick={() => {
+          const arBtn = document.querySelector('button[style*="ARButton"]');
+          if (arBtn) arBtn.click();
+        }}
+      >
+        🚀 Start AR
+      </button>
+
+    </div>
 
       {/* AR Canvas */}
       <div className="ar-scene" ref={containerRef}></div>
