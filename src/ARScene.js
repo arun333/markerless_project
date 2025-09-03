@@ -35,7 +35,9 @@ const ARScene = () => {
     containerRef.current.appendChild(renderer.domElement);
 
     const arButton = ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] });
-    arButton.style.display = 'none'; // hide the default button
+
+    // Style it like a native part of your app
+    arButton.classList.add('custom-ar-button');
     document.body.appendChild(arButton);
 
     const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
@@ -236,16 +238,8 @@ const ARScene = () => {
     and then hit <strong>Start AR</strong>.
   </div>
 
-      <button
-        className="start-ar-button"
-        onClick={() => {
-          const arBtn = document.querySelector('button[style*="xr-button"]');
-          if (arBtn) arBtn.click(); // Simulate the hidden ARButton click
-        }}
-      >
-        🚀 Start AR
-          </button>
-          </div>
+      
+  </div>
 
       {/* AR Canvas */}
       <div className="ar-scene" ref={containerRef}></div>

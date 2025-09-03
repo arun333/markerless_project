@@ -49,6 +49,29 @@
   transform: scale(1.03);
 }
 
+.custom-ar-button {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  background-color: #00796b;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.3s ease;
+}
+
+.custom-ar-button:hover {
+  background-color: #004d40;
+}
+
+
 .instruction {
   font-size: 14px;
   color: #004d40;
