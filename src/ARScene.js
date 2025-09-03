@@ -246,7 +246,7 @@ const ARScene = () => {
   </select>
 
   <div className="instruction">
-    This project lets you explore marine life in Augmented Reality. Press START AR and find a flat surface like a table or floor, then tap one to place the model.
+    This project lets you explore marine life in Augmented Reality. Press <b>Start AR</b> button and find a flat surface like a table or floor, then after green ring appears on the screen tap once to place the model.
   </div>
 
       <button

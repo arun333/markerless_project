@@ -1,7 +1,6 @@
 .ar-container {
   width: 100vw;
   height: 100vh;
-  padding: 10px;
   background: linear-gradient(135deg, #e0f7fa, #80deea);
   display: flex;
   justify-content: center;
@@ -51,29 +50,6 @@
 
 .dropdown:hover {
   transform: scale(1.02);
-}
-
-.custom-ar-button {
-  position: absolute;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 999;
-  background-color: white;
-  color: #00796b;
-  font-size: 18px;
-  font-weight: bold;
-  padding: 14px 28px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.custom-ar-button:hover {
-  background-color: #00796b;
-  color: white;
 }
 
 
