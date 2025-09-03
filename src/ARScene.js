@@ -34,9 +34,9 @@ const ARScene = () => {
     renderer.xr.enabled = true;
     containerRef.current.appendChild(renderer.domElement);
 
-    document.body.appendChild(
-      ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] })
-    );
+    const arButton = ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] });
+    arButton.style.display = 'none'; // hide the default button
+    document.body.appendChild(arButton);
 
     const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
     scene.add(light);
@@ -217,50 +217,35 @@ const ARScene = () => {
   return (
      <div className="ar-container">
     
-    {/* UI Overlay Section */}
     <div className="ui-overlay">
+  <div className="title">🌊 Explore Marine Life in AR</div>
 
-      <div className="title">🌊 Explore Marine Life in AR</div>
+  <div className="model-label">Please select a model you want to view:</div>
+  <select
+    value={selectedModel}
+    onChange={(e) => setSelectedModel(e.target.value)}
+    className="dropdown"
+  >
+    <option value="shark.glb">Shark</option>
+    <option value="whale.glb">Dolphin</option>
+  </select>
 
-      {/* New instruction above dropdown */}
-      <div style={{ marginBottom: '6px', fontSize: '14px', color: '#004d40' }}>
-        Please select a model you want to view:
-      </div>
+  <div className="instruction">
+    This project lets you explore marine life in Augmented Reality. <br />
+    Find a flat surface like a table or floor, tap to place the model,<br />
+    and then hit <strong>Start AR</strong>.
+  </div>
 
-      <select
-        className="dropdown"
-        value={selectedModel}
-        onChange={(e) => setSelectedModel(e.target.value)}
-      >
-        <option value="shark.glb">Shark</option>
-        <option value="whale.glb">Dolphin</option>
-      </select>
-
-      {/* Simplified instruction without background */}
-      <div className="instruction" style={{ backgroundColor: 'transparent', marginTop: '10px' }}>
-        This project lets you explore marine life in Augmented Reality.<br />
-        Find a flat surface like a table or floor,<br />
-        tap to place the model, and then hit <strong>Start AR</strong>.
-      </div>
-
-      {/* Start AR Button */}
       <button
-        className="dropdown"
-        style={{
-          marginTop: '18px',
-          fontWeight: 'bold',
-          fontSize: '18px',
-          padding: '12px 24px'
-        }}
+        className="start-ar-button"
         onClick={() => {
-          const arBtn = document.querySelector('button[style*="ARButton"]');
-          if (arBtn) arBtn.click();
+          const arBtn = document.querySelector('button[style*="xr-button"]');
+          if (arBtn) arBtn.click(); // Simulate the hidden ARButton click
         }}
       >
         🚀 Start AR
-      </button>
-
-    </div>
+          </button>
+          </div>
 
       {/* AR Canvas */}
       <div className="ar-scene" ref={containerRef}></div>

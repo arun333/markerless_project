@@ -12,31 +12,35 @@
 
 .ui-overlay {
   position: absolute;
-  top: 20px;
+  top: 40px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 15px; /* add spacing between items */
   text-align: center;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 26px;
+  font-weight: 700;
   color: #004d40;
-  margin-bottom: 10px;
+}
+
+.model-label {
+  font-size: 16px;
+  color: #004d40;
 }
 
 .dropdown {
   padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
+  border-radius: 12px;
+  border: 1px solid #ccc;
   background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-size: 16px;
-  margin-bottom: 10px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
@@ -48,20 +52,23 @@
 .instruction {
   font-size: 14px;
   color: #004d40;
-  background-color: rgba(255, 255, 255, 0.65);
-  padding: 8px 12px;
-  border-radius: 8px;
-  backdrop-filter: blur(4px);
+  max-width: 90%;
+  line-height: 1.5;
 }
 
-.ar-scene canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-.ui-overlay > * {
-  margin-bottom: 16px; /* space between elements */
+.start-ar-button {
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: #ff6f00;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease;
 }
 
-.dropdown {
-  min-width: 200px;
+.start-ar-button:hover {
+  background-color: #e65100;
 }
