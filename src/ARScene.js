@@ -229,7 +229,7 @@ const ARScene = () => {
     className="dropdown"
   >
     <option value="shark.glb">Shark</option>
-    <option value="whale.glb">Dolphin</option>
+    <option value="whale.glb">Whale</option>
   </select>
 
   <div className="instruction">
