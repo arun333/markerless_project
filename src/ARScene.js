@@ -132,11 +132,19 @@ const ARScene = () => {
           if (hitTestResults.length > 0) {
             const hit = hitTestResults[0];
             const pose = hit.getPose(renderer.xr.getReferenceSpace());
-            reticle.visible = true;
-            reticle.matrix.fromArray(pose.transform.matrix);
+            if(!modelPlaced)
+            {
+              reticle.visible = true;
+              reticle.matrix.fromArray(pose.transform.matrix);
+
+            }
+            
           } else {
             reticle.visible = false;
           }
+        }else{
+          if(!modelPlaced)
+            reticle.visible=false;
         }
 
         const delta = clock.getDelta();
