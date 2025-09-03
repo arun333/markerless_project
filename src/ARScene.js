@@ -35,10 +35,9 @@ const ARScene = () => {
     containerRef.current.appendChild(renderer.domElement);
 
     const arButton = ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] });
-
-    // Style it like a native part of your app
-    arButton.classList.add('custom-ar-button');
-    document.body.appendChild(arButton);
+    arButton.style.display = 'none'; // Hide it entirely
+    document.body.appendChild(arButton); 
+    window._arButton = arButton;
 
     const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
     scene.add(light);
@@ -239,8 +238,11 @@ const ARScene = () => {
       <button
       className="start-ar-button"
       onClick={() => {
-        const arBtn = document.querySelector('button[style*="xr-button"]');
-        if (arBtn) arBtn.click();
+        if (window._arButton) {
+        window._arButton.click(); // triggers the real WebXR session start
+      } else {
+        console.error("AR button not initialized");
+      }
       }}
     >
       Start AR
