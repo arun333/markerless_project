@@ -150,14 +150,13 @@ const ARScene = () => {
         const delta = clock.getDelta();
         if (mixer) mixer.update(delta);
 
-        // Dolphin floating effect
         if (modelGroup && selectedModel === 'whale.glb') {
           const t = clock.getElapsedTime();
           const cameraObj = renderer.xr.getCamera();
 
           modelGroup.position.y = modelGroup.userData.originalY + Math.sin(t * 2) * 0.05;
 
-           const dolphinPosition = modelGroup.position.clone();
+          const modelPos = modelGroup.position.clone();
           const cameraPosition = new THREE.Vector3();
           cameraObj.getWorldPosition(cameraPosition);
 
@@ -175,8 +174,8 @@ const ARScene = () => {
                 User 1 Observation: User was trying to move the model and tryong to place more than one model.
 
           */
-          const direction = cameraPosition.clone().sub(dolphinPosition).normalize();
-          const moveSpeed = 0.005; // adjust for slower/faster approach
+          const direction = cameraPosition.clone().sub(modelPos).normalize();
+          const moveSpeed = 0.003; // adjust for slower/faster approach
 
           // Update position
           modelGroup.position.add(direction.multiplyScalar(moveSpeed));
